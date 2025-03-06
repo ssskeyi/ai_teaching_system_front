@@ -41,11 +41,11 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const goToHistory = () => {
-    router.push('/teacher/resources/history');
+    router.push('/admin/resources-view/history');
 };
 
 const goToPersonal = () => {
-    router.push('/teacher/resources/personal');
+    router.push('/admin/resources-view/personal');
 };
 </script>
 

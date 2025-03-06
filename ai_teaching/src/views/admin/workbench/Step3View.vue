@@ -70,7 +70,7 @@
             <div class="actions">
                 <button class="action-btn back-btn" @click="goBack">上一步</button>
                 <button class="action-btn save-btn" @click="saveContent">保存</button>
-                <button class="action-btn next-btn" @click="nextStep">{{ isLastStep ? '完成' : '下一步' }}</button>
+                <button class="action-btn next-btn" @click="nextStep">下一步</button>
             </div>
         </div>
     </div>
@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { reactive, computed } from 'vue';
+import { reactive } from 'vue';
 
 const router = useRouter();
 
@@ -103,15 +103,8 @@ const toggleSelection = (type: keyof SelectedResources, id: string) => {
     }
 };
 
-// 计算是否是最后一步
-const isLastStep = computed(() => {
-    const features = JSON.parse(localStorage.getItem('workbenchFeatures') || '{}');
-    // 如果只选了资源推荐，就是最后一步
-    return features.resourceRecommend && !features.exerciseGeneration;
-});
-
 const goBack = () => {
-    router.push('/teacher/workbench/step2');
+    router.push('/admin/workbench/step2');
 };
 
 const saveContent = () => {
@@ -120,16 +113,7 @@ const saveContent = () => {
 
 const nextStep = () => {
     saveContent();
-    const features = JSON.parse(localStorage.getItem('workbenchFeatures') || '{}');
-
-    if (features.exerciseGeneration) {
-// 如果选择了练习题生成，继续到 step4
-        router.push('/teacher/workbench/step4');
-    } else {
-        // 如果只选了资源推荐，完成
-        localStorage.removeItem('workbenchFeatures');
-        router.push('/teacher/workbench');
-    }
+    router.push('/admin/workbench/step4');
 };
 </script>
 
@@ -274,8 +258,6 @@ h3 {
     font-size: 16px;
     cursor: pointer;
     transition: all 0.3s;
-    padding: 0;
-    box-sizing: border-box;
 }
 
 .back-btn {

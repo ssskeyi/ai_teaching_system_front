@@ -44,7 +44,7 @@ const isLastStep = computed(() => {
 
 // 返回上一步
 const goBack = () => {
-    router.push('/teacher/workbench/step1');
+    router.push('/admin/workbench/step1');
 };
 
 // 保存内容
@@ -59,15 +59,15 @@ const nextStep = () => {
     const features = JSON.parse(localStorage.getItem('workbenchFeatures') || '{}');
 
     if (features.resourceRecommend) {
-// 如果选择了资源推荐，继续到 step3
-        router.push('/teacher/workbench/step3');
+        // 如果选择了资源推荐，继续到 step3
+        router.push('/admin/workbench/step3');
     } else if (features.exerciseGeneration) {
         // 如果只选了练习题生成，跳到 step4
-        router.push('/teacher/workbench/step4');
+        router.push('/admin/workbench/step4');
     } else {
         // 如果都没选，完成
         localStorage.removeItem('workbenchFeatures');
-        router.push('/teacher/workbench');
+        router.push('/admin/workbench');
     }
 };
 

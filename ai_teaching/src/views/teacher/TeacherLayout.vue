@@ -15,15 +15,15 @@
                 <nav>
                     <ul>
                         <li>
-                            <router-link to="/teacher/workbench" active-class="active">
+                            <router-link to="/teacher/workbench" :class="{ active: isWorkbenchActive }">
                                 备课工作台
                             </router-link>
                         </li>
                         <li>
-                            <router-link to="/teacher/resources" active-class="active">
+                            <router-link to="/teacher/resources" :class="{ active: isResourcesActive }">
                                 资源展示
                             </router-link>
-                            <ul class="sub-menu">
+                            <ul class="sub-menu" v-show="isResourcesActive">
                                 <li>
                                     <router-link to="/teacher/resources/history" active-class="active">
                                         历史记录
@@ -37,7 +37,7 @@
                             </ul>
                         </li>
                         <li>
-                            <router-link to="/teacher/classes" active-class="active">
+                            <router-link to="/teacher/classes" :class="{ active: isClassesActive }">
                                 班级管理
                             </router-link>
                         </li>
@@ -53,11 +53,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 const username = ref('教师用户');
+
+// 计算当前路由是否属于工作台模块
+const isWorkbenchActive = computed(() => {
+    return route.path.startsWith('/teacher/workbench');
+});
+
+// 计算当前路由是否属于资源展示模块
+const isResourcesActive = computed(() => {
+    return route.path.startsWith('/teacher/resources');
+});
+
+// 计算当前路由是否属于班级管理模块
+const isClassesActive = computed(() => {
+    return route.path.startsWith('/teacher/classes');
+});
 
 onMounted(() => {
     // 在实际应用中，这里应该获取用户信息

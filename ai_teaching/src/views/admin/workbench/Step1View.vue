@@ -167,7 +167,7 @@ watch(customDurationValue, (newValue) => {
 
 // 返回上一步
 const goBack = () => {
-    router.push('/teacher/workbench');
+    router.push('/admin/workbench');
 };
 
 // 开始备课
@@ -180,8 +180,8 @@ const startPreparation = () => {
     // 将选择存储到 localStorage 中
     localStorage.setItem('workbenchFeatures', JSON.stringify(features));
 
-    // 跳转到下一步
-    router.push('/teacher/workbench/step2');
+    // 根据选择决定下一步
+    router.push('/admin/workbench/step2');
 };
 </script>
 

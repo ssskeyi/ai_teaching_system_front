@@ -1,49 +1,55 @@
 <template>
     <div class="user-management">
-        <h1>用户管理</h1>
+        <h2>用户管理</h2>
 
-        <div class="management-actions">
-            <div class="search-bar">
-                <input type="text" v-model="searchQuery" placeholder="搜索用户..." @input="searchUsers" />
-                <select v-model="roleFilter" @change="filterUsersByRole">
-                    <option value="">所有角色</option>
-                    <option value="teacher">教师</option>
-                    <option value="student">学生</option>
-                    <option value="admin">管理员</option>
-                </select>
+        <!-- 搜索和操作区 -->
+        <div class="top-actions">
+            <div class="search-area">
+                <input type="text" v-model="searchQuery" placeholder="搜索..." class="search-input" />
+                <button class="search-btn">搜索</button>
             </div>
             <button class="add-user-btn" @click="showAddUserModal = true">添加用户</button>
         </div>
 
-        <div class="users-table-container">
-            <table class="users-table">
+        <!-- 用户类型筛选 -->
+        <div class="filter-tabs">
+            <button v-for="type in userTypes" :key="type.value"
+                :class="['filter-tab', { active: selectedType === type.value }]" @click="selectedType = type.value">
+                {{ type.label }}
+            </button>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="user-table">
+            <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>用户名</th>
-                        <th>邮箱</th>
-                        <th>角色</th>
-                        <th>状态</th>
+                        <th>类别</th>
+                        <th>用户状态</th>
+                        <th>学工号</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="user in displayedUsers" :key="user.id">
-                        <td>{{ user.id }}</td>
+                    <tr v-for="user in filteredUsers" :key="user.id">
                         <td>{{ user.username }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ formatRole(user.role) }}</td>
+                        <td>{{ user.type === 'teacher' ? '教师' :
+                            user.type === 'student' ? '学生' :
+                                user.type === 'admin' ? '管理员' : user.type }}</td>
                         <td>
-                            <span :class="['status-badge', user.active ? 'active' : 'inactive']">
-                                {{ user.active ? '活跃' : '禁用' }}
+                            <span :class="['status-tag', user.status]">
+                                {{ user.status }}
                             </span>
                         </td>
+                        <td>{{ user.number }}</td>
                         <td class="actions">
-                            <button class="edit-btn" @click="editUser(user)">编辑</button>
-                            <button class="toggle-status-btn" @click="toggleUserStatus(user)">
-                                {{ user.active ? '禁用' : '启用' }}
+                            <button class="action-btn" :class="user.status === '已禁用' ? 'restore' : 'ban'"
+                                @click="toggleUserStatus(user)">
+                                {{ user.status === '已禁用' ? '恢复' : '禁用' }}
                             </button>
-                            <button class="delete-btn" @click="deleteUser(user)">删除</button>
+                            <button class="action-btn reset">重置密码</button>
+                            <button class="action-btn delete">注销</button>
                         </td>
                     </tr>
                 </tbody>
@@ -53,62 +59,32 @@
         <!-- 添加用户对话框 -->
         <div v-if="showAddUserModal" class="modal">
             <div class="modal-content">
-                <h2>添加用户</h2>
+                <h3>添加用户</h3>
                 <form @submit.prevent="addUser">
                     <div class="form-group">
-                        <label for="username">用户名</label>
-                        <input type="text" id="username" v-model="newUser.username" required />
+                        <label>用户名</label>
+                        <input type="text" v-model="newUser.username" required />
                     </div>
                     <div class="form-group">
-                        <label for="email">邮箱</label>
-                        <input type="email" id="email" v-model="newUser.email" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="password">密码</label>
-                        <input type="password" id="password" v-model="newUser.password" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="role">角色</label>
-                        <select id="role" v-model="newUser.role" required>
-                            <option value="">请选择角色</option>
+                        <label>类别</label>
+                        <select v-model="newUser.type" required>
+                            <option value="">请选择类别</option>
                             <option value="teacher">教师</option>
                             <option value="student">学生</option>
                             <option value="admin">管理员</option>
                         </select>
                     </div>
-                    <div class="modal-actions">
-                        <button type="button" @click="showAddUserModal = false">取消</button>
-                        <button type="submit" class="save-btn">保存</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- 编辑用户对话框 -->
-        <div v-if="showEditUserModal" class="modal">
-            <div class="modal-content">
-                <h2>编辑用户</h2>
-                <form @submit.prevent="updateUser">
                     <div class="form-group">
-                        <label for="edit-username">用户名</label>
-                        <input type="text" id="edit-username" v-model="editingUser.username" required />
+                        <label>学工号</label>
+                        <input type="text" v-model="newUser.number" required />
                     </div>
                     <div class="form-group">
-                        <label for="edit-email">邮箱</label>
-                        <input type="email" id="edit-email" v-model="editingUser.email" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-role">角色</label>
-                        <select id="edit-role" v-model="editingUser.role" required>
-                            <option value="">请选择角色</option>
-                            <option value="teacher">教师</option>
-                            <option value="student">学生</option>
-                            <option value="admin">管理员</option>
-                        </select>
+                        <label>初始密码</label>
+                        <input type="password" v-model="newUser.password" required />
                     </div>
                     <div class="modal-actions">
-                        <button type="button" @click="showEditUserModal = false">取消</button>
-                        <button type="submit" class="save-btn">保存</button>
+                        <button type="button" class="cancel-btn" @click="showAddUserModal = false">取消</button>
+                        <button type="submit" class="submit-btn">确定</button>
                     </div>
                 </form>
             </div>
@@ -117,268 +93,207 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
+
+const searchQuery = ref('');
+const selectedType = ref('all');
+const showAddUserModal = ref(false);
+
+// 用户类型选项
+const userTypes = [
+    { label: '全部', value: 'all' },
+    { label: '教师', value: 'teacher' },
+    { label: '学生', value: 'student' },
+    { label: '管理员', value: 'admin' }
+];
+
+// 新用户表单数据
+const newUser = ref({
+    username: '',
+    type: '',
+    number: '',
+    password: ''
+});
 
 // 模拟用户数据
 const users = ref([
-    { id: 1, username: 'teacher1', email: 'teacher1@example.com', role: 'teacher', active: true },
-    { id: 2, username: 'student1', email: 'student1@example.com', role: 'student', active: true },
-    { id: 3, username: 'admin1', email: 'admin1@example.com', role: 'admin', active: true },
-    { id: 4, username: 'teacher2', email: 'teacher2@example.com', role: 'teacher', active: false },
-    { id: 5, username: 'student2', email: 'student2@example.com', role: 'student', active: true },
+    { id: 1, username: '林雨廷', type: 'student', status: '正常', number: '20225789' },
+    { id: 2, username: '徐硕', type: 'student', status: '正常', number: '20222313' },
+    { id: 3, username: '李木', type: 'admin', status: '正常', number: '243452' },
+    { id: 4, username: '欧阳子七', type: 'teacher', status: '已禁用', number: '34785678' }
 ]);
 
-const searchQuery = ref('');
-const roleFilter = ref('');
-const showAddUserModal = ref(false);
-const showEditUserModal = ref(false);
-const editingUser = ref<any>(null);
-const newUser = ref({
-    username: '',
-    email: '',
-    password: '',
-    role: ''
+// 根据筛选条件过滤用户
+const filteredUsers = computed(() => {
+    return users.value.filter(user => {
+        const matchesSearch = user.username.includes(searchQuery.value) ||
+            user.number.includes(searchQuery.value);
+        const matchesType = selectedType.value === 'all' || user.type === selectedType.value;
+        return matchesSearch && matchesType;
+    });
 });
-
-// 过滤显示的用户
-const displayedUsers = computed(() => {
-    let filtered = users.value;
-
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        filtered = filtered.filter(user =>
-            user.username.toLowerCase().includes(query) ||
-            user.email.toLowerCase().includes(query)
-        );
-    }
-
-    if (roleFilter.value) {
-        filtered = filtered.filter(user => user.role === roleFilter.value);
-    }
-
-    return filtered;
-});
-
-// 角色格式化
-const formatRole = (role: string) => {
-    const roleMap: Record<string, string> = {
-        teacher: '教师',
-        student: '学生',
-        admin: '管理员'
-    };
-    return roleMap[role] || role;
-};
-
-// 搜索用户
-const searchUsers = () => {
-    // 实际应用中可能需要请求后端
-    console.log('搜索用户:', searchQuery.value);
-};
-
-// 按角色过滤用户
-const filterUsersByRole = () => {
-    // 实际应用中可能需要请求后端
-    console.log('按角色过滤:', roleFilter.value);
-};
 
 // 添加用户
 const addUser = () => {
-    // 实际应用中应发送请求到后端
-    const newId = Math.max(...users.value.map(u => u.id)) + 1;
-    const userToAdd = {
-        id: newId,
-        username: newUser.value.username,
-        email: newUser.value.email,
-        role: newUser.value.role,
-        active: true
+    const newUserData = {
+        id: users.value.length + 1,
+        ...newUser.value,
+        status: '正常'
     };
-
-    users.value.push(userToAdd);
+    users.value.push(newUserData);
     showAddUserModal.value = false;
-    newUser.value = { username: '', email: '', password: '', role: '' };
+    newUser.value = { username: '', type: '', number: '', password: '' };
 };
 
-// 编辑用户
-const editUser = (user: any) => {
-    editingUser.value = { ...user };
-    showEditUserModal.value = true;
-};
-
-// 更新用户
-const updateUser = () => {
-    // 实际应用中应发送请求到后端
-    const index = users.value.findIndex(u => u.id === editingUser.value.id);
-    if (index !== -1) {
-        users.value[index] = { ...editingUser.value };
-    }
-    showEditUserModal.value = false;
-};
-
-// 切换用户状态（启用/禁用）
+// 切换用户状态
 const toggleUserStatus = (user: any) => {
-    // 实际应用中应发送请求到后端
-    const index = users.value.findIndex(u => u.id === user.id);
-    if (index !== -1) {
-        users.value[index].active = !users.value[index].active;
-    }
+    user.status = user.status === '正常' ? '已禁用' : '正常';
 };
-
-// 删除用户
-const deleteUser = (user: any) => {
-    // 实际应用中应发送请求到后端
-    if (confirm(`确定要删除用户 ${user.username} 吗？`)) {
-        users.value = users.value.filter(u => u.id !== user.id);
-    }
-};
-
-onMounted(() => {
-    // 在实际应用中，这里应该从API获取用户列表
-    console.log('用户管理组件已挂载');
-});
 </script>
 
 <style scoped>
 .user-management {
-    padding: 1rem;
+    padding: 20px;
 }
 
-h1 {
-    margin-bottom: 2rem;
-    color: #2c3e50;
+h2 {
+    margin-bottom: 20px;
+    color: #333;
 }
 
-.management-actions {
+.top-actions {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
 }
 
-.search-bar {
+.search-area {
     display: flex;
-    gap: 1rem;
-    flex: 1;
-    max-width: 500px;
+    gap: 10px;
 }
 
-.search-bar input,
-.search-bar select {
-    padding: 0.5rem;
+.search-input {
+    width: 300px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 
-.search-bar input {
-    flex: 1;
-}
-
-.add-user-btn {
-    background-color: #2ecc71;
+.search-btn {
+    padding: 8px 20px;
+    background-color: #666;
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 0.5rem 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.add-user-btn:hover {
-    background-color: #27ae60;
+.add-user-btn {
+    padding: 8px 20px;
+    background-color: #4c84ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-.users-table-container {
-    overflow-x: auto;
+.filter-tabs {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
 }
 
-.users-table {
+.filter-tab {
+    padding: 8px 20px;
+    background-color: #f5f7fa;
+    border: none;
+    border-radius: 4px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-tab.active {
+    background-color: #4c84ff;
+    color: white;
+}
+
+.user-table {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
 }
 
-.users-table th,
-.users-table td {
-    border: 1px solid #ddd;
-    padding: 0.75rem;
+th,
+td {
+    padding: 12px;
     text-align: left;
+    border-bottom: 1px solid #eee;
 }
 
-.users-table th {
-    background-color: #f5f7fa;
-    color: #2c3e50;
-    font-weight: 600;
+th {
+    color: #666;
+    font-weight: normal;
 }
 
-.users-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+.status-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
 }
 
-.users-table tr:hover {
-    background-color: #f1f1f1;
+.status-tag.正常 {
+    background-color: #e3f2fd;
+    color: #4c84ff;
 }
 
-.status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-}
-
-.status-badge.active {
-    background-color: #d5f5e3;
-    color: #27ae60;
-}
-
-.status-badge.inactive {
-    background-color: #fadbd8;
-    color: #e74c3c;
+.status-tag.已禁用 {
+    background-color: #ffebee;
+    color: #dc3545;
 }
 
 .actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
-.actions button {
-    padding: 0.25rem 0.5rem;
+.action-btn {
+    padding: 4px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.edit-btn {
-    background-color: #3498db;
     color: white;
 }
 
-.edit-btn:hover {
-    background-color: #2980b9;
+.action-btn.ban {
+    background-color: #4c84ff;
 }
 
-.toggle-status-btn {
-    background-color: #f39c12;
-    color: white;
+.action-btn.restore {
+    background-color: #28a745;
 }
 
-.toggle-status-btn:hover {
-    background-color: #d35400;
+.action-btn.reset {
+    background-color: #ffc107;
 }
 
-.delete-btn {
-    background-color: #e74c3c;
-    color: white;
+.action-btn.delete {
+    background-color: #dc3545;
 }
 
-.delete-btn:hover {
-    background-color: #c0392b;
-}
-
+/* 模态框样式 */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
@@ -387,33 +302,32 @@ h1 {
 }
 
 .modal-content {
-    background-color: white;
-    padding: 2rem;
+    background: white;
+    padding: 24px;
     border-radius: 8px;
-    width: 100%;
-    max-width: 500px;
+    width: 90%;
+    max-width: 400px;
 }
 
-.modal h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #2c3e50;
+.modal-content h3 {
+    margin: 0 0 20px 0;
+    color: #333;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 16px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    color: #34495e;
+    margin-bottom: 8px;
+    color: #666;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.75rem;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
@@ -421,23 +335,25 @@ h1 {
 .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 12px;
+    margin-top: 24px;
 }
 
-.modal-actions button {
-    padding: 0.5rem 1rem;
-    border: none;
+.cancel-btn {
+    padding: 8px 20px;
+    background-color: #f5f7fa;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    color: #666;
     cursor: pointer;
 }
 
-.save-btn {
-    background-color: #2ecc71;
+.submit-btn {
+    padding: 8px 20px;
+    background-color: #4c84ff;
     color: white;
-}
-
-.save-btn:hover {
-    background-color: #27ae60;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 </style>

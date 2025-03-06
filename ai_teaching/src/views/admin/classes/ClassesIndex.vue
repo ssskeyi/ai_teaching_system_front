@@ -120,7 +120,7 @@ const createClass = () => {
 
 // 进入班级
 const enterClass = (classId: number) => {
-    router.push(`/teacher/classes/${classId}`);
+    router.push(`/admin/classes/${classId}`);
 };
 </script>
 

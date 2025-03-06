@@ -128,64 +128,124 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'admin' },
       children: [
         {
+          path: '',
+          redirect: '/admin/users'
+        },
+        {
+          path: 'users',
+          name: 'UserManagement',
+          component: () => import('../views/admin/UserManagementView.vue'),
+          meta: {
+            title: '用户管理',
+            requiresAuth: true,
+            requiresAdmin: true
+          }
+        },
+        {
+          path: 'resources',
+          name: 'ResourceManagement',
+          component: () => import('../views/admin/ResourceManagementView.vue'),
+          meta: {
+            title: '资源管理',
+            requiresAuth: true,
+            requiresAdmin: true
+          }
+        },
+        // 工作台路由
+        {
           path: 'workbench',
           name: 'adminWorkbench',
-          component: () => import('../views/teacher/workbench/WorkbenchIndex.vue')
+          component: () => import('../views/admin/workbench/WorkbenchIndex.vue'),
+          meta: {
+            title: '工作台监控',
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
           path: 'workbench/step1',
           name: 'adminWorkbenchStep1',
-          component: () => import('../views/teacher/workbench/Step1View.vue')
+          component: () => import('../views/admin/workbench/Step1View.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
           path: 'workbench/step2',
           name: 'adminWorkbenchStep2',
-          component: () => import('../views/teacher/workbench/Step2View.vue')
+          component: () => import('../views/admin/workbench/Step2View.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
           path: 'workbench/step3',
           name: 'adminWorkbenchStep3',
-          component: () => import('../views/teacher/workbench/Step3View.vue')
+          component: () => import('../views/admin/workbench/Step3View.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
           path: 'workbench/step4',
           name: 'adminWorkbenchStep4',
-          component: () => import('../views/teacher/workbench/Step4View.vue')
+          component: () => import('../views/admin/workbench/Step4View.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
+        },
+        // 资源相关路由
+        {
+          path: 'resources-view',
+          name: 'adminResourcesView',
+          component: () => import('../views/admin/resources/ResourcesIndex.vue'),
+          meta: {
+            title: '资源概览',
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
-          path: 'resources',
-          name: 'adminResources',
-          component: () => import('../views/teacher/resources/ResourcesIndex.vue')
-        },
-        {
-          path: 'resources/history',
+          path: 'resources-view/history',
           name: 'adminResourcesHistory',
-          component: () => import('../views/teacher/resources/HistoryView.vue')
+          component: () => import('../views/admin/resources/HistoryView.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
-          path: 'resources/personal',
+          path: 'resources-view/personal',
           name: 'adminResourcesPersonal',
-          component: () => import('../views/teacher/resources/PersonalView.vue')
+          component: () => import('../views/admin/resources/PersonalView.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
+        // 班级相关路由
         {
           path: 'classes',
           name: 'adminClasses',
-          component: () => import('../views/teacher/classes/ClassesIndex.vue')
+          component: () => import('../views/admin/classes/ClassesIndex.vue'),
+          meta: {
+            title: '班级管理',
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         },
         {
           path: 'classes/:id',
           name: 'adminClassDetail',
-          component: () => import('../views/teacher/classes/ClassDetailView.vue')
-        },
-        {
-          path: 'users',
-          name: 'adminUsers',
-          component: () => import('../views/admin/UserManagementView.vue')
-        },
-        {
-          path: 'resources-manage',
-          name: 'adminResourcesManage',
-          component: () => import('../views/admin/ResourceManagementView.vue')
+          component: () => import('../views/admin/classes/ClassDetailView.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
         }
       ]
     },

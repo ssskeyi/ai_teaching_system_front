@@ -2,7 +2,7 @@
     <div class="admin-layout">
         <header class="app-header">
             <div class="logo">
-                <h1>教学系统 - 管理员端</h1>
+                <h1>教学系统 - 管理端</h1>
             </div>
             <div class="user-info">
                 <span>{{ username }}</span>
@@ -15,40 +15,40 @@
                 <nav>
                     <ul>
                         <li>
-                            <router-link to="/admin/workbench" active-class="active">
+                            <router-link to="/admin/users" :class="{ active: isUsersActive }">
+                                用户管理
+                            </router-link>
+                        </li>
+                        <li>
+                            <router-link to="/admin/resources" :class="{ active: isResourcesActive }">
+                                资源管理
+                            </router-link>
+                        </li>
+                        <li>
+                            <router-link to="/admin/workbench" :class="{ active: isWorkbenchActive }">
                                 备课工作台
                             </router-link>
                         </li>
                         <li>
-                            <router-link to="/admin/resources" active-class="active">
-                                资源展示
+                            <router-link to="/admin/resources-view" :class="{ active: isResourcesViewActive }">
+                                资源概览
                             </router-link>
-                            <ul class="sub-menu">
+                            <ul class="sub-menu" v-show="isResourcesViewActive">
                                 <li>
-                                    <router-link to="/admin/resources/history" active-class="active">
+                                    <router-link to="/admin/resources-view/history" active-class="active">
                                         历史记录
                                     </router-link>
                                 </li>
                                 <li>
-                                    <router-link to="/admin/resources/personal" active-class="active">
+                                    <router-link to="/admin/resources-view/personal" active-class="active">
                                         个人资源
                                     </router-link>
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            <router-link to="/admin/classes" active-class="active">
+                            <router-link to="/admin/classes" :class="{ active: isClassesActive }">
                                 班级管理
-                            </router-link>
-                        </li>
-                        <li class="admin-menu">
-                            <router-link to="/admin/users" active-class="active">
-                                用户管理
-                            </router-link>
-                        </li>
-                        <li class="admin-menu">
-                            <router-link to="/admin/resources-manage" active-class="active">
-                                资源管理
                             </router-link>
                         </li>
                     </ul>
@@ -63,15 +63,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
-const username = ref('管理员用户');
+const route = useRoute();
+const username = ref('管理员');
 
-onMounted(() => {
-    // 在实际应用中，这里应该获取用户信息
-    // 例如从localStorage或后端API获取
+// 计算当前路由是否属于用户管理模块
+const isUsersActive = computed(() => {
+    return route.path.startsWith('/admin/users');
+});
+
+// 计算当前路由是否属于资源管理模块
+const isResourcesActive = computed(() => {
+    return route.path === '/admin/resources';
+});
+
+// 计算当前路由是否属于工作台模块
+const isWorkbenchActive = computed(() => {
+    return route.path.startsWith('/admin/workbench');
+});
+
+// 计算当前路由是否属于资源概览模块
+const isResourcesViewActive = computed(() => {
+    return route.path.startsWith('/admin/resources-view');
+});
+
+// 计算当前路由是否属于班级管理模块
+const isClassesActive = computed(() => {
+    return route.path.startsWith('/admin/classes');
 });
 
 const logout = () => {
@@ -97,7 +118,7 @@ const logout = () => {
 }
 
 .app-header {
-    background-color: #e74c3c;
+    background-color: #2c3e50;
     color: white;
     padding: 1rem 2rem;
     display: flex;
@@ -129,7 +150,7 @@ const logout = () => {
 
 .logout-btn:hover {
     background-color: white;
-    color: #e74c3c;
+    color: #2c3e50;
 }
 
 .layout-content {
@@ -170,17 +191,16 @@ const logout = () => {
 
 .sidebar nav a:hover,
 .sidebar nav a.active {
-    background-color: #e74c3c;
+    background-color: #4c84ff;
     color: white;
 }
 
-.admin-menu a {
-    font-weight: bold;
-}
-
-.admin-menu a:hover,
-.admin-menu a.active {
-    background-color: #c0392b;
+.main-content {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    padding: 1.5rem;
+    overflow-y: auto;
 }
 
 .sub-menu {
@@ -190,13 +210,5 @@ const logout = () => {
 .sub-menu a {
     padding: 0.5rem 1.5rem !important;
     font-size: 0.9rem;
-}
-
-.main-content {
-    flex: 1;
-    height: 100%;
-    width: 100%;
-    padding: 1.5rem;
-    overflow-y: auto;
 }
 </style>
