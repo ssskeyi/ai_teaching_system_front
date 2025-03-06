@@ -1,16 +1,180 @@
 <template>
     <div class="history-view">
-        <h1>历史记录</h1>
-        <p>这是资源历史记录页面的占位符，具体内容将根据设计图进行开发</p>
+        <!-- 顶部搜索和操作区 -->
+        <div class="top-actions">
+            <div class="search-bar">
+                <input type="text" v-model="searchQuery" placeholder="单击输入关键词或标题" @input="handleSearch" />
+                <button class="search-btn">搜索</button>
+            </div>
+            <div class="action-buttons">
+                <button class="batch-btn">批量操作</button>
+                <button class="export-btn">导出记录</button>
+            </div>
+        </div>
+
+        <!-- 资源列表 -->
+        <div class="resources-list">
+            <!-- 资源推荐 -->
+            <div class="resource-section">
+                <h3>资源推荐</h3>
+                <div class="resource-items">
+                    <div class="resource-item" v-for="(item, index) in recommendResources" :key="'recommend-' + index">
+                        <div class="title">{{ item.title }}</div>
+                        <div class="date">{{ item.date }}</div>
+                        <button class="edit-btn">查看</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 练习题 -->
+            <div class="resource-section">
+                <h3>练习题生成</h3>
+                <div class="resource-items">
+                    <div class="resource-item" v-for="(item, index) in exercises" :key="'exercise-' + index">
+                        <div class="title">{{ item.title }}</div>
+                        <div class="date">{{ item.date }}</div>
+                        <button class="edit-btn">查看</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-// 资源历史记录组件
+import { ref } from 'vue';
+
+const searchQuery = ref('');
+
+// 模拟数据
+const recommendResources = ref([
+    { title: '高等数学第一章推荐资源', date: '2024/3/27' },
+    { title: '高等数学第二章推荐资源', date: '2024/3/15' }
+]);
+
+const exercises = ref([
+    { title: '2024年高等数学上期第一期中培考题（一）', date: '2024/2/27' },
+    { title: '高等数学第二章练习题', date: '2024/3/20' }
+]);
+
+const handleSearch = () => {
+    console.log('搜索:', searchQuery.value);
+    // 实现搜索逻辑
+};
 </script>
 
 <style scoped>
 .history-view {
     padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    max-width: 500px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-btn {
+    padding: 8px 20px;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.batch-btn,
+.export-btn {
+    padding: 8px 20px;
+    background-color: #4c84ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.resources-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.resource-section {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resource-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.resource-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f5f7fa;
+    border-radius: 4px;
+}
+
+.resource-item .title {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.resource-item .date {
+    color: #666;
+    font-size: 14px;
+    margin: 0 20px;
+}
+
+.edit-btn {
+    padding: 6px 16px;
+    background-color: #4c84ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-btn:hover {
+    background-color: #3a70e3;
 }
 </style>

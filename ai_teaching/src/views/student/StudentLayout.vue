@@ -15,10 +15,15 @@
                 <nav>
                     <ul>
                         <li>
-                            <router-link to="/student/recommend" active-class="active">
-                                资源推荐
+                            <router-link to="/student/recommend" :class="{ active: isRecommendActive }">
+                                自学中心
                             </router-link>
-                            <ul class="sub-menu">
+                            <ul class="sub-menu" :class="{ show: isRecommendActive }">
+                                <li>
+                                    <router-link to="/student/recommend/resources" active-class="active">
+                                        资源推荐
+                                    </router-link>
+                                </li>
                                 <li>
                                     <router-link to="/student/recommend/exercises" active-class="active">
                                         练习题生成
@@ -27,10 +32,10 @@
                             </ul>
                         </li>
                         <li>
-                            <router-link to="/student/resources" active-class="active">
+                            <router-link to="/student/resources" :class="{ active: isResourcesActive }">
                                 资源展示
                             </router-link>
-                            <ul class="sub-menu">
+                            <ul class="sub-menu" :class="{ show: isResourcesActive }">
                                 <li>
                                     <router-link to="/student/resources/history" active-class="active">
                                         历史记录
@@ -44,7 +49,7 @@
                             </ul>
                         </li>
                         <li>
-                            <router-link to="/student/classes" active-class="active">
+                            <router-link to="/student/classes" :class="{ active: isClassesActive }">
                                 班级中心
                             </router-link>
                         </li>
@@ -60,15 +65,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 const username = ref('学生用户');
 
-onMounted(() => {
-    // 在实际应用中，这里应该获取用户信息
-    // 例如从localStorage或后端API获取
+// 计算当前路由是否属于自学中心模块
+const isRecommendActive = computed(() => {
+    return route.path.startsWith('/student/recommend');
+});
+
+// 计算当前路由是否属于资源展示模块
+const isResourcesActive = computed(() => {
+    return route.path.startsWith('/student/resources');
+});
+
+// 计算当前路由是否属于班级中心模块
+const isClassesActive = computed(() => {
+    return route.path.startsWith('/student/classes');
 });
 
 const logout = () => {
@@ -163,6 +179,7 @@ const logout = () => {
     color: #2c3e50;
     text-decoration: none;
     transition: all 0.3s;
+    position: relative;
 }
 
 .sidebar nav a:hover,
@@ -173,11 +190,23 @@ const logout = () => {
 
 .sub-menu {
     padding-left: 1.5rem !important;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.sub-menu.show {
+    max-height: 200px;
 }
 
 .sub-menu a {
     padding: 0.5rem 1.5rem !important;
     font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.sub-menu a:hover {
+    opacity: 1;
 }
 
 .main-content {

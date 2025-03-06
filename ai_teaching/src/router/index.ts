@@ -89,13 +89,18 @@ const router = createRouter({
           component: () => import('../views/student/recommend/RecommendIndex.vue')
         },
         {
+          path: 'recommend/resources',
+          name: 'studentResources',
+          component: () => import('../views/student/recommend/ResourcesView.vue')
+        },
+        {
           path: 'recommend/exercises',
           name: 'studentExercises',
           component: () => import('../views/student/recommend/ExercisesView.vue')
         },
         {
           path: 'resources',
-          name: 'studentResources',
+          name: 'studentResourcesView',
           component: () => import('../views/student/resources/ResourcesIndex.vue')
         },
         {
